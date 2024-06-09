@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "LKQtfuvtqnKIS3ckzfFANUq1l+w16A/71vLGBLL0Vp0=",
+  "Source": "api-with-auth",
+  "BasePath": "_content/api-with-auth",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
