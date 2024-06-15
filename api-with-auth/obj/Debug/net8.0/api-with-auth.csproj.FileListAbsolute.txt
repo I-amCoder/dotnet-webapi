@@ -141,3 +141,5 @@ D:\.Net Learning\api-with-auth\api-with-auth\obj\Debug\net8.0\refint\api-with-au
 D:\.Net Learning\api-with-auth\api-with-auth\obj\Debug\net8.0\api-with-auth.pdb
 D:\.Net Learning\api-with-auth\api-with-auth\obj\Debug\net8.0\api-with-auth.genruntimeconfig.cache
 D:\.Net Learning\api-with-auth\api-with-auth\obj\Debug\net8.0\ref\api-with-auth.dll
+D:\.Net Learning\api-with-auth\api-with-auth\bin\Debug\net8.0\AutoMapper.dll
+D:\.Net Learning\api-with-auth\api-with-auth\obj\Debug\net8.0\api-with-auth.sourcelink.json

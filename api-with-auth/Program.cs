@@ -1,5 +1,8 @@
+using api_with_auth;
 using api_with_auth.Data;
 using api_with_auth.Models;
+using api_with_auth.Repository;
+using api_with_auth.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +12,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddAutoMapper(typeof(MappingConfig));
+
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>

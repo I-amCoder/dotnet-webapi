@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "4Vx6qUztFHahhr5YIA+GPSON0Ql9QpOkgB/4yfuCb2m8PdUWV7szGOorpPjfvLC3HuJBOePCrLZKXKHTvKrBjA==",
+  "dgSpecHash": "LqoQU6y13wFpF7RPGOeZfFHh+BbdrqaUZ9qgQfIYF65TKv6E2L0MlEQiyu6SWpmE4JjmItptS+GneuGldfpaVg==",
   "success": true,
   "projectFilePath": "D:\\.Net Learning\\api-with-auth\\api-with-auth\\api-with-auth.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Junaid Ali\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\Junaid Ali\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Junaid Ali\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
     "C:\\Users\\Junaid Ali\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

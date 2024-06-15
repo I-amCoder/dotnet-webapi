@@ -1,93 +1,155 @@
-﻿
+﻿using AutoMapper;
+using api_with_auth.Responses;
 using Microsoft.AspNetCore.Mvc;
 using api_with_auth.Models;
-using api_with_auth.Data;
-using Microsoft.EntityFrameworkCore;
+using api_with_auth.Repository.IRepository;
 using api_with_auth.Models.Dto;
-using Microsoft.AspNetCore.Authorization;
+using System.Net;
 
 namespace api_with_auth.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PostsController : ControllerBase
+    public class PostsController: ControllerBase
     {
-        private readonly AppDbContext _dbContext;
-        
-        public PostsController(AppDbContext dbContext)
-        {
-            _dbContext = dbContext;
+        private readonly IMapper _mapper;
+        private readonly IPostRepository _repository;
+        private ApiResponse _response;
+        public PostsController(IPostRepository repository,IMapper mapper) 
+        { 
+            _mapper = mapper;
+            _repository = repository;
+            _response = new();
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PostDto>>> GetPosts()
+        public async Task<ActionResult<ApiResponse>> GetAll()
         {
-            var posts = await _dbContext.Posts
-              .Select(post => new PostDto{ 
-                Id = post.Id,
-                Title = post.Title,
-                Content = post.Content,
-                CreatedAt = post.CreatedAt,
-                Comments = post.Comments.Select(c=> new CommentDto
-                {
-                    Id = c.Id,
-                    PostId = c.Id,
-                    CreatedAt = c.CreatedAt,
-                    Content = c.Content
-                }).ToList()
-            }).ToListAsync();
+            try
+            {
+                IEnumerable<Post> posts = await _repository.GetAllAsync();
+                _response.Result = _mapper.Map<List<PostDto>>(posts);
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
 
-            return Ok(posts);
+            } catch(Exception ex)
+            {
+                _response.ErrorMessages = new List<string> { ex.Message.ToString() };
+                _response.IsSuccess = false;
+                return _response;
+            }
         }
 
         [HttpGet("{Id:int}")]
-        public async Task<ActionResult<Post>> GetPost(int Id)
+        public async Task<ActionResult<ApiResponse>> Get(int Id)
         {
-            var post = await _dbContext
-                .Posts.Where(p=>p.Id == Id)
-                .Select(p=> new PostDto
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Content = p.Content,
-                    CreatedAt = p.CreatedAt,
-                    Comments = p.Comments.Select(c=> new CommentDto
-                    {
-                        Id=c.Id,
-                        Content=c.Content,  
-                        CreatedAt=c.CreatedAt,
-                        PostId  = p.Id
-                    }).ToList()
-                }).FirstOrDefaultAsync();
-                
-            
-            if (post == null)
+            if(Id == null || Id == 0)
             {
-                return NotFound("Post Not Found");
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                return BadRequest(_response);
             }
 
+            Post post = await _repository.GetAsync(u=>u.Id  == Id);
+            
+            if(post == null)
+            {
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.IsSuccess = false;
+                return NotFound(_response);
+            }
 
-         
-            return Ok(post);
+            _response.Result = _mapper.Map<PostDto>(post);
+            _response.StatusCode = HttpStatusCode.OK;
+            return Ok(_response );
         }
 
         [HttpPost]
-        [Authorize()]
-        public async Task<ActionResult<PostDto>> CreatePost(CreatePostDto createDto)
+        public async Task<ActionResult<ApiResponse>> Create(CreatePostDto createDto)
         {
-            // Map properties manually
-            Post post = new()
+            if(createDto == null)
             {
-                Title = createDto.Title,
-                Content = createDto.Content,
-                CreatedAt = DateTime.Now,
-            };
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                return BadRequest(_response);
+            }
+            
+            try
+            {
+                Post post = _mapper.Map<Post>(createDto);
+                await _repository.CreateAsync(post);
+                _response.Result = _mapper.Map<PostDto>(post);
 
-            _dbContext.Posts.Add(post);
-            await _dbContext.SaveChangesAsync();
-
-            // New Instance of PostDto
-            return CreatedAtAction(nameof(GetPost), new { post.Id}, post);
+                return CreatedAtAction(nameof(Get), new { post.Id }, post);
+            }
+            catch (Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages = [ ex.Message.ToString() ];
+                return BadRequest(_response);
+            }
         }
+
+        [HttpPut("{Id:int}")]
+        public async Task<ActionResult<ApiResponse>> Update(int Id)
+        {
+            if(Id == 0)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                Post post = await _repository.GetAsync(p => p.Id == Id);
+                if(post == null)
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    _response.IsSuccess = false;
+                    return NotFound(_response);
+                }
+
+                
+
+            }catch(Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = [ex.Message.ToString()];
+            }
+
+            return _response;
+        }
+
+        [HttpDelete("{Id:int}")]
+        public async Task<ActionResult<ApiResponse>> deletePost(int Id)
+        {
+            try
+            {
+                if(Id == 0)
+                {
+                    return BadRequest();
+                }
+
+                var post = await _repository.GetAsync(e => e.Id == Id);
+                if(post == null)
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    _response.IsSuccess = false;    
+                    return NotFound(_response);
+                }
+
+                await _repository.RemoveAsync(post);
+                _response.StatusCode = HttpStatusCode.NoContent;
+                return Ok(_response);
+
+            }catch(Exception ex)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.IsSuccess = false;
+                _response.ErrorMessages = [ex.Message.ToString() ];
+                return _response;
+            }
+        }
+
     }
 }

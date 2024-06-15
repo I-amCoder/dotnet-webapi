@@ -10,9 +10,9 @@ namespace api_with_auth.Repository
         private readonly AppDbContext _dbContext;
         internal DbSet<T> dbSet;
 
-        public BaseRepository(AppDbContext context)
+        public BaseRepository(AppDbContext dbContext)
         {
-            _dbContext = context;
+            _dbContext = dbContext;
             dbSet = _dbContext.Set<T>();    
         }
 
